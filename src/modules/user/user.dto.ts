@@ -18,6 +18,13 @@ export interface UserResponseDTO {
   updated_at: Date
 }
 
+export interface UserResponsePaginatedDTO {
+  data: UserResponseDTO[]
+  page: number
+  totalPages: number
+  totalRecords: number
+}
+
 export interface CreateUserDTO {
   role?: Role
   employee_id: number
@@ -33,6 +40,9 @@ export interface CreateUserDTO {
 }
 
 export interface UpdateUserDTO {
+  id: number
+  role: Role
+  employee_id: number
   email: string
   first_name: string
   middle_name: string | null

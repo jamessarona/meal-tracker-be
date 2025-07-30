@@ -1,5 +1,5 @@
 import { inject, injectable } from 'tsyringe';
-import { CreateUserDTO, UpdateUserDTO, UserResponseDTO } from './user.dto';
+import { CreateUserDTO, UpdateUserDTO, UserResponseDTO, UserResponsePaginatedDTO } from './user.dto';
 import { UserRepository } from './user.repository';
 import { toUserResponseDTO } from './user.mapper';
 import { HashService } from '../../core/services/security/hash.service';
@@ -27,9 +27,10 @@ export class UserService {
 
   async getUsersPaginated(page: number, limit: number, search?: string): Promise<UserResponsePaginatedDTO>{
     const skip = (page - 1) * limit;
+
     const [users, total] = await Promise.all([
-      this.userRepo.findPaginated(skip, limit),
-      this.userRepo.countAll(),
+      this.userRepo.findPaginated(skip, limit, search),
+      this.userRepo.countAll(search),
     ]);
 
     return {
@@ -46,7 +47,7 @@ export class UserService {
   }
 
   async createUser(data: CreateUserDTO, currentUserId: number): Promise<UserResponseDTO> {
-const existingUser = await this.userRepo.findByEmployeeId(data.employee_id);
+    const existingUser = await this.userRepo.findByEmployeeId(data.employee_id);
     if (existingUser)
       throw new HttpError(`User with employee_id ${data.employee_id} already exists.`, StatusCodes.CONFLICT);
 
@@ -55,8 +56,8 @@ const existingUser = await this.userRepo.findByEmployeeId(data.employee_id);
     const result = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: { ...data, password: hashedPassword },
-});
-    
+      });
+
       const changedFields = this.auditLogService.generateCreateFields(data, UserService.loggableFields);
       await this.auditLogService.log({
         action: LogAction.CREATE,
@@ -78,8 +79,8 @@ const existingUser = await this.userRepo.findByEmployeeId(data.employee_id);
       throw new HttpError(`User with id ${id} not found.`, StatusCodes.NOT_FOUND);
     }
 
-    const result = await prisma.$transaction(async () => {    
-    const updatedUser = await this.userRepo.update(id, data);
+    const result = await prisma.$transaction(async () => {
+      const updatedUser = await this.userRepo.update(id, data);
 
       const changedFields = this.auditLogService.getChangedFields(
         oldUser,
@@ -104,10 +105,10 @@ const existingUser = await this.userRepo.findByEmployeeId(data.employee_id);
   }
 
   async deleteUser(id: number, currentUserId: number): Promise<void> {
-const existing = await this.userRepo.findById(id);
+    const existing = await this.userRepo.findById(id);
 
     await prisma.$transaction(async () => {
-    await this.userRepo.delete(id);
+      await this.userRepo.delete(id);
 
       if (existing) {
         await this.auditLogService.log({

@@ -2,16 +2,37 @@ import prisma from '../../prisma/client';
 import { CreateUserDTO, UpdateUserDTO } from './user.dto';
 
 export class UserRepository {
-  findPaginated(skip: number, take: number) {
+  findPaginated(skip: number, take: number, search?: string) {
     return prisma.user.findMany({
       skip,
       take,
+      where: search
+        ? {
+            OR: [
+              { first_name: { contains: search, mode: 'insensitive' } },
+              { last_name: { contains: search, mode: 'insensitive' } },
+              { email: { contains: search, mode: 'insensitive' } },
+              { employee_id: { equals: isNaN(Number(search)) ? undefined : Number(search) } },
+            ],
+          }
+        : undefined,
       orderBy: { created_at: 'desc' },
     });
   }
 
-  countAll() {
-    return prisma.user.count();
+  countAll(search?: string) {
+    return prisma.user.count({
+      where: search
+        ? {
+            OR: [
+              { first_name: { contains: search, mode: 'insensitive' } },
+              { last_name: { contains: search, mode: 'insensitive' } },
+              { email: { contains: search, mode: 'insensitive' } },
+              { employee_id: { equals: isNaN(Number(search)) ? undefined : Number(search) } },
+            ],
+          }
+        : undefined,
+    });
   }
 
   findById(id: number) {

@@ -7,6 +7,7 @@ import { AuthRepository } from "../../modules/auth/auth.repository";
 import { HashService } from "../services/security/hash.service";
 import { SessionTokenService } from "../services/security/session-token.service";
 import { ResetTokenService } from "../services/security/reset-token.service";
+import { AuditLogService } from "../../modules/audit-log/audit-log.service";
 
 container.register<UserService>("UserService", { useClass: UserService });
 container.register<AuthService>("AuthService", { useClass: AuthService });
@@ -17,3 +18,4 @@ container.register<HashService>("HashService", { useClass: HashService});
 
 container.register<UserRepository>("UserRepository", { useClass: UserRepository });
 container.register<AuthRepository>("AuthRepository", { useClass: AuthRepository });
+container.register<AuditLogService>("AuditLogService", { useClass: AuditLogService });

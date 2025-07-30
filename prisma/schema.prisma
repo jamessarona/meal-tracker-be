@@ -37,6 +37,12 @@ model User {
   
   sessions      UserSession[]
   audit_logs    AuditLog[]
+
+  @@index([first_name])
+  @@index([last_name])
+  @@index([employee_id])
+  @@index([email])
+  @@index([created_at])
   @@map("users") 
 }
 
