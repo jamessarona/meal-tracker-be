@@ -33,7 +33,6 @@ Thumbs.db
 
 # Optional: ignore local database dump or export files
 *.dump
-*.sql
 
 # PM2 logs
 pids
