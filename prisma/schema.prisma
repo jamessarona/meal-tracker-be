@@ -37,6 +37,7 @@ model User {
   
   sessions      UserSession[]
   audit_logs    AuditLog[]
+  meal_type     MealType? @relation(fields: [meal_type_id], references: [id], onDelete: Cascade)
 
   @@index([first_name])
   @@index([last_name])
@@ -98,4 +99,17 @@ model AuditLogField {
 
   @@map("audit_log_fields")
   @@index([audit_log_id])
+}
+
+model MealType {
+  id          Int       @id @default(autoincrement())
+  name        String    
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  users       User[]
+
+  @@map("meal_types")
+  @@index([name])
 }
