@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { StatusCodes } from 'http-status-codes';
 
 export function errorHandler(
   err: any,
@@ -8,7 +9,7 @@ export function errorHandler(
 ) {
   const isProd = process.env.APP_ENV === 'production';
 
-  const statusCode = err.statusCode || 500;
+  const statusCode = err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
 
   const response = {
     success: false,

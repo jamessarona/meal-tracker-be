@@ -5,6 +5,7 @@ import { AuthenticatedRequest } from '../types/authenticated-request';
 import { HttpError } from '../utils/httpError';
 import { CurrentUserDTO } from '../modules/auth/auth.dto';
 import { SessionPayload } from '../core/services/security/session-token.service';
+import { StatusCodes } from 'http-status-codes';
 
 export const authenticate = async (
   req: AuthenticatedRequest,
@@ -15,7 +16,7 @@ export const authenticate = async (
     const token = req.cookies?.accessToken;
 
     if (!token) {
-      throw new HttpError('Unauthorized', 401);
+      throw new HttpError('Unauthorized', StatusCodes.UNAUTHORIZED);
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as SessionPayload;
@@ -34,7 +35,7 @@ export const authenticate = async (
     });
 
     if (!user) {
-      throw new HttpError('Unauthorized', 401);
+      throw new HttpError('Unauthorized', StatusCodes.UNAUTHORIZED);
     }
 
     const currentUser: CurrentUserDTO = {
@@ -51,6 +52,6 @@ export const authenticate = async (
 
     next();
   } catch (error) {
-    next(new HttpError('Unauthorized', 401));
+    next(new HttpError('Unauthorized', StatusCodes.UNAUTHORIZED));
   }
 };

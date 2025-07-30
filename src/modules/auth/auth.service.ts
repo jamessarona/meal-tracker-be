@@ -8,6 +8,7 @@ import { UserRepository } from "../user/user.repository";
 import { AuthRepository } from "./auth.repository";
 import { SessionPayload } from '../../core/services/security/session-token.service';
 import { ResetPayload } from '../../core/services/security/reset-token.service';
+import { StatusCodes } from 'http-status-codes';
 
 interface LoginOptions {
   ip?: string;
@@ -28,8 +29,8 @@ export class AuthService {
 
   async sendVerificationCode(employee_id: number): Promise<void> {
     const user = await this.userRepository.findByEmployeeId(employee_id);
-    if (!user) throw new HttpError("User not found", 404);
-    if (user.is_verified) throw new HttpError("User is already verified", 400);
+    if (!user) throw new HttpError("User not found", StatusCodes.NOT_FOUND);
+    if (user.is_verified) throw new HttpError("User is already verified", StatusCodes.BAD_REQUEST);
 
     const verification_code = crypto.randomInt(100000, 999999).toString();
     const verification_expiry = new Date(Date.now() + 15 * 60 * 1000);
@@ -41,8 +42,8 @@ export class AuthService {
 
   async verifyUserCode(employee_id: number, verification_code: string, new_password: string) {
     const user = await this.userRepository.findByEmployeeId(employee_id);
-    if (!user) throw new HttpError('User not found', 404);
-    if (user.is_verified) throw new HttpError('User is already verified', 400);
+    if (!user) throw new HttpError('User not found', StatusCodes.NOT_FOUND);
+    if (user.is_verified) throw new HttpError('User is already verified', StatusCodes.BAD_REQUEST);
 
     if (
       !user.verification_code ||
@@ -50,7 +51,7 @@ export class AuthService {
       !user.verification_expiry ||
       new Date() > user.verification_expiry
     ) {
-      throw new HttpError('Invalid or expired verification code', 400);
+      throw new HttpError('Invalid or expired verification code', StatusCodes.BAD_REQUEST);
     }
 
     const hashedPassword  = await this.hashService.hash(new_password);
@@ -62,12 +63,12 @@ export class AuthService {
 
   async login(employee_id: number, password: string, options: LoginOptions = {}) {
     const user = await this.userRepository.findByEmployeeId(employee_id);
-    if (!user) throw new HttpError('Invalid credentials', 401);
+    if (!user) throw new HttpError('Invalid credentials', StatusCodes.UNAUTHORIZED);
 
     const isPasswordValid = await this.hashService.compare(password, user.password);
-    if (!isPasswordValid) throw new HttpError('Invalid credentials', 401);
-    if (!user.is_active) throw new HttpError('Account is inactive', 403);
-    if (!user.is_verified) throw new HttpError('Account is not verified', 403);
+    if (!isPasswordValid) throw new HttpError('Invalid credentials', StatusCodes.UNAUTHORIZED);
+    if (!user.is_active) throw new HttpError('Account is inactive', StatusCodes.FORBIDDEN);
+    if (!user.is_verified) throw new HttpError('Account is not verified', StatusCodes.FORBIDDEN);
 
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
     const payload: SessionPayload = {
