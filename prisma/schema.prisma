@@ -49,7 +49,7 @@ model User {
 model UserSession {
   id           Int      @id @default(autoincrement())
   token        String   @unique
-  employee_id  Int
+  user_id  Int
   ip_address   String?
   user_agent   String?
   device       String?
@@ -58,10 +58,10 @@ model UserSession {
   created_at   DateTime @default(now())
   updated_at   DateTime  @updatedAt
 
-  user         User     @relation(fields: [employee_id], references: [employee_id])
+  user         User     @relation(fields: [user_id], references: [id])
 
   @@map("user_sessions")
-  @@index([employee_id])
+  @@index([user_id])
 }
 
 enum LogAction {

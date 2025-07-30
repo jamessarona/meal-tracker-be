@@ -23,7 +23,7 @@ export class AuthRepository {
 
   createSession(data: {
     token: string;
-    employee_id: number;
+    user_id: number;
     ip_address?: string | null;
     user_agent?: string | null;
     device?: string | null;

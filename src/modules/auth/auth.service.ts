@@ -82,7 +82,7 @@ export class AuthService {
 
     await this.authRepository.createSession({
       token,
-      employee_id: user.employee_id,
+      user_id: user.id,
       ip_address: options.ip || null,
       user_agent: options.userAgent || null,
       device: options.device || null,
