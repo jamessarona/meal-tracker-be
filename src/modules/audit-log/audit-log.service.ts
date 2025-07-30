@@ -13,7 +13,7 @@ interface LogParams {
   objectId: number;
   actorUserId: number;
   changedFields?: Record<string, ChangedField>;
-  tx?: Prisma.TransactionClient;
+  transactionClient?: Prisma.TransactionClient;
 }
 
 @injectable()
@@ -24,9 +24,9 @@ export class AuditLogService {
     objectId,
     actorUserId,
     changedFields = {},
-    tx,
+    transactionClient,
   }: LogParams): Promise<void> {
-    const db = tx ?? prisma;
+    const db = transactionClient ?? prisma;
 
     const auditLog = await db.auditLog.create({
       data: {
@@ -34,7 +34,7 @@ export class AuditLogService {
         object_type: objectType,
         object_id: objectId,
         user_id: actorUserId,
-        createdAt: new Date(),
+        created_at: new Date(),
       },
     });
 
@@ -45,8 +45,8 @@ export class AuditLogService {
       const fieldLogs = Object.entries(changedFields).map(([field, values]) => ({
         audit_log_id: auditLog.id,
         field,
-        oldValue: values.old === null || values.old === undefined ? null : String(values.old),
-        newValue: values.new === null || values.new === undefined ? null : String(values.new),
+        old_value: values.old === null || values.old === undefined ? null : String(values.old),
+        new_value: values.new === null || values.new === undefined ? null : String(values.new),
       }));
 
       await db.auditLogField.createMany({ data: fieldLogs });

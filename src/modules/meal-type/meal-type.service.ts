@@ -38,10 +38,10 @@ export class MealTypeService {
   }
 
   async createMealType(data: { name: string }, currentUserId: number): Promise<MealTypeResponseDTO> {
-    const result = await prisma.$transaction(async (tx) => {
-      const repo = new MealTypeRepository(tx);
+    const result = await prisma.$transaction(async (transactionClient) => {
+      const transMealTypeRepo = new MealTypeRepository(transactionClient);
 
-      const mealType = await repo.create({
+      const mealType = await transMealTypeRepo.create({
         ...data,
         is_active: true,
       });
@@ -57,7 +57,7 @@ export class MealTypeService {
         objectId: mealType.id,
         actorUserId: currentUserId,
         changedFields,
-        tx,
+        transactionClient,
       });
 
       return mealType;
@@ -72,10 +72,10 @@ export class MealTypeService {
       throw new HttpError(`Meal type with id ${id} not found.`, StatusCodes.NOT_FOUND);
     }
 
-    const result = await prisma.$transaction(async (tx) => {
-      const repo = new MealTypeRepository(tx);
+    const result = await prisma.$transaction(async (transactionClient) => {
+      const transMealTypeRepo = new MealTypeRepository(transactionClient);
 
-      const updatedMealType = await repo.update(id, data);
+      const updatedMealType = await transMealTypeRepo.update(id, data);
 
       const changedFields = this.auditLogService.getChangedFields(
         oldMealType,
@@ -89,7 +89,7 @@ export class MealTypeService {
         objectId: id,
         actorUserId: currentUserId,
         changedFields,
-        tx
+        transactionClient
       });
 
       return updatedMealType;
@@ -104,10 +104,10 @@ export class MealTypeService {
       throw new HttpError(`Meal type with id ${id} not found.`, StatusCodes.NOT_FOUND);
     }
 
-    await prisma.$transaction(async (tx) => {
-      const repo = new MealTypeRepository(tx);
+    await prisma.$transaction(async (transactionClient) => {
+      const transMealTypeRepo = new MealTypeRepository(transactionClient);
 
-      await repo.delete(id);
+      await transMealTypeRepo.delete(id);
 
       await this.auditLogService.log({
         action: LogAction.DELETE,
@@ -115,7 +115,7 @@ export class MealTypeService {
         objectId: id,
         actorUserId: currentUserId,
         changedFields: {},
-        tx
+        transactionClient
       });
     });
   }

@@ -53,10 +53,10 @@ export class UserService {
 
     const hashedPassword = await this.hashService.hash(data.password);
 
-    const result = await prisma.$transaction(async (tx) => {
-      const repo = new UserRepository(tx);
+    const result = await prisma.$transaction(async (transactionClient) => {
+      const transUserRepo = new UserRepository(transactionClient);
 
-      const user = await repo.create({
+      const user = await transUserRepo.create({
         ...data,
         password: hashedPassword,
       });
@@ -68,7 +68,7 @@ export class UserService {
         objectId: user.id,
         actorUserId: currentUserId,
         changedFields,
-        tx,
+        transactionClient,
       });
 
       return user;
@@ -83,10 +83,10 @@ export class UserService {
       throw new HttpError(`User with id ${id} not found.`, StatusCodes.NOT_FOUND);
     }
 
-    const result = await prisma.$transaction(async (tx) => {
-      const repo = new UserRepository(tx);
+    const result = await prisma.$transaction(async (transactionClient) => {
+      const transUserRepo = new UserRepository(transactionClient);
 
-      const updatedUser = await repo.update(id, data);
+      const updatedUser = await transUserRepo.update(id, data);
 
       const changedFields = this.auditLogService.getChangedFields(
         oldUser,
@@ -101,7 +101,7 @@ export class UserService {
           objectId: id,
           actorUserId: currentUserId,
           changedFields,
-          tx,
+          transactionClient,
         });
       }
 
@@ -114,10 +114,10 @@ export class UserService {
   async deleteUser(id: number, currentUserId: number): Promise<void> {
     const existing = await this.userRepo.findById(id);
 
-    await prisma.$transaction(async (tx) => {
-      const repo = new UserRepository(tx);
+    await prisma.$transaction(async (transactionClient) => {
+      const transUserRepo = new UserRepository(transactionClient);
 
-      await repo.delete(id);
+      await transUserRepo.delete(id);
 
       if (existing) {
         await this.auditLogService.log({
@@ -125,7 +125,7 @@ export class UserService {
           objectType: 'User',
           objectId: id,
           actorUserId: currentUserId,
-          tx,
+          transactionClient,
         });
       }
     });

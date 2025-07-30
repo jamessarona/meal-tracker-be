@@ -1,8 +1,8 @@
 import { container } from "tsyringe";
 import { MealTypeService } from "./meal-type.service";
 import { StatusCodes } from "http-status-codes";
-import { Request, Response } from "express";
-import { AuthenticatedRequest } from "src/types/authenticated-request";
+import { Response } from "express";
+import { AuthenticatedRequest } from "../../types/authenticated-request";
 
 const mealTypeService = container.resolve(MealTypeService);
 
