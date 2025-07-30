@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { container } from 'tsyringe';
 import { UserService } from './user.service';
-import { AuthenticatedRequest } from 'src/types/authenticated-request';
+import { AuthenticatedRequest } from '../../types/authenticated-request';
 import { StatusCodes } from 'http-status-codes';
 
 const userService = container.resolve(UserService);

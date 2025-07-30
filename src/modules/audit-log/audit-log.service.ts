@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
 import prisma from '../../prisma/client';
-import { LogAction } from '@prisma/client';
+import { LogAction, Prisma } from '@prisma/client';
 
 interface ChangedField {
   old: any;
@@ -13,6 +13,7 @@ interface LogParams {
   objectId: number;
   actorUserId: number;
   changedFields?: Record<string, ChangedField>;
+  tx?: Prisma.TransactionClient;
 }
 
 @injectable()
@@ -23,8 +24,11 @@ export class AuditLogService {
     objectId,
     actorUserId,
     changedFields = {},
+    tx,
   }: LogParams): Promise<void> {
-    const auditLog = await prisma.auditLog.create({
+    const db = tx ?? prisma;
+
+    const auditLog = await db.auditLog.create({
       data: {
         action,
         object_type: objectType,
@@ -45,22 +49,22 @@ export class AuditLogService {
         newValue: values.new === null || values.new === undefined ? null : String(values.new),
       }));
 
-      await prisma.auditLogField.createMany({ data: fieldLogs });
+      await db.auditLogField.createMany({ data: fieldLogs });
     }
   }
 
   generateCreateFields(
     newData: Record<string, any>,
     onlyFields?: string[]
-    ): Record<string, { old: any; new: any }> {
+  ): Record<string, { old: any; new: any }> {
     const fieldsToCheck = onlyFields?.length ? onlyFields : Object.keys(newData);
     const changed: Record<string, { old: any; new: any }> = {};
 
     for (const key of fieldsToCheck) {
-        changed[key] = {
+      changed[key] = {
         old: null,
         new: newData[key],
-        };
+      };
     }
 
     return changed;

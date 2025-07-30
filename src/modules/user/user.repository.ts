@@ -1,9 +1,15 @@
-import prisma from '../../prisma/client';
+import type { PrismaClient, Prisma } from '@prisma/client';
 import { CreateUserDTO, UpdateUserDTO } from './user.dto';
+import { inject, injectable } from 'tsyringe';
 
+@injectable()
 export class UserRepository {
+  constructor(
+    @inject("PrismaClient") private prisma: PrismaClient | Prisma.TransactionClient
+  ) {}
+
   findPaginated(skip: number, take: number, search?: string) {
-    return prisma.user.findMany({
+    return this.prisma.user.findMany({
       skip,
       take,
       where: search
@@ -21,7 +27,7 @@ export class UserRepository {
   }
 
   countAll(search?: string) {
-    return prisma.user.count({
+    return this.prisma.user.count({
       where: search
         ? {
             OR: [
@@ -36,22 +42,22 @@ export class UserRepository {
   }
 
   findById(id: number) {
-    return prisma.user.findUnique({ where: { id } });
+    return this.prisma.user.findUnique({ where: { id } });
   }
 
   findByEmployeeId(employee_id: number) {
-    return prisma.user.findUnique({ where: { employee_id }, },);
+    return this.prisma.user.findUnique({ where: { employee_id } });
   }
 
   create(data: CreateUserDTO & { password: string }) {
-    return prisma.user.create({ data },);
+    return this.prisma.user.create({ data });
   }
 
   update(id: number, data: Partial<UpdateUserDTO>) {
-    return prisma.user.update({ where: { id }, data });
+    return this.prisma.user.update({ where: { id }, data });
   }
 
   delete(id: number) {
-    return prisma.user.delete({ where: { id } });
+    return this.prisma.user.delete({ where: { id } });
   }
 }
