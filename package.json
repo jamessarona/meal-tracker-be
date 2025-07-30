@@ -11,6 +11,9 @@
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "author": "James Angelo Saron",
   "license": "ISC",
   "dependencies": {

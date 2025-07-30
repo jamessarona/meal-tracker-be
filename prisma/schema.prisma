@@ -77,7 +77,7 @@ model AuditLog {
   object_type  String
   object_id    Int
   user_id      Int   
-  createdAt    DateTime        @default(now())
+  created_at    DateTime        @default(now())
 
   user         User            @relation(fields: [user_id], references: [id], onDelete: Cascade)
   fields       AuditLogField[]
@@ -85,15 +85,15 @@ model AuditLog {
   @@map("audit_logs")
   @@index([user_id])
   @@index([object_type, object_id])
-  @@index([createdAt])
+  @@index([created_at])
 }
 
 model AuditLogField {
   id          Int       @id @default(autoincrement())
   audit_log_id  Int
   field       String
-  oldValue    String?
-  newValue    String?
+  old_value    String?
+  new_value    String?
 
   audit_log    AuditLog  @relation(fields: [audit_log_id], references: [id], onDelete: Cascade)
 
