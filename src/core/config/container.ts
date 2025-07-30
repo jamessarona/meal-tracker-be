@@ -12,6 +12,8 @@ import { MealTypeRepository } from "../../modules/meal-type/meal-type.repository
 import { MealTypeService } from "../../modules/meal-type/meal-type.service";
 import { PrismaClient } from "@prisma/client";
 import prisma from "../../prisma/client";
+import { LocationRepository } from "../../modules/location/location.repository";
+import { LocationService } from "../../modules/location/location.service";
 
 container.register<UserService>("UserService", { useClass: UserService });
 container.register<AuthService>("AuthService", { useClass: AuthService });
@@ -21,9 +23,11 @@ container.register<ResetTokenService>("ResetTokenService", { useClass: ResetToke
 container.register<HashService>("HashService", { useClass: HashService});
 container.register<AuditLogService>("AuditLogService", { useClass: AuditLogService });
 container.register<MealTypeService>("MealTypeService", { useClass: MealTypeService });
+container.register<LocationService>("LocationService", { useClass: LocationService });
 
 container.register<UserRepository>("UserRepository", { useClass: UserRepository });
 container.register<AuthRepository>("AuthRepository", { useClass: AuthRepository });
 container.register<MealTypeRepository>("MealTypeRepository", { useClass: MealTypeRepository });
+container.register<LocationRepository>("LocationRepository", { useClass: LocationRepository });
 
 container.registerInstance<PrismaClient>("PrismaClient", prisma);

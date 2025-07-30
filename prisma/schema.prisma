@@ -113,3 +113,14 @@ model MealType {
   @@map("meal_types")
   @@index([name])
 }
+
+model Location {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  @@map("locations")
+  @@index([name])
+}
